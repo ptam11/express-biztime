@@ -65,7 +65,7 @@ router.delete("/:code", async function (req, res, next) {
              [req.params.code]
         )
         
-        return res.status(202).json({company: results.rows[0]})
+        return res.status(202).json({status: "deleted"})
     } catch(err) {
         return next(err)
     }
