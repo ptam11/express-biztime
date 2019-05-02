@@ -16,13 +16,18 @@ router.get("/", async function (req, res, next) {
 router.get("/:code", async function (req, res, next) {
     try {
         const results = await db.query(
-            `SELECT *
-            FROM companies
-            WHERE code = $1`,
+            `SELECT c.code, c.name, c.description, i.field
+            FROM companies c
+            LEFT JOIN companies_industries ci
+                ON c.code = ci.comp_code
+            LEFT JOIN industries i
+                ON ci.industry_id = i.id
+            WHERE c.code = $1`,
             [req.params.code]
         )
-        
-        return res.json({company: results.rows})
+        let {code, name, description } = results.rows[0];
+        let industries = results.rows.map(r => r.field);
+        return res.json({company: {code, name, description, industries}})
     } catch(err) {
         return next(err)
     }

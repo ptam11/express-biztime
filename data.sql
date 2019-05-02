@@ -19,12 +19,37 @@ CREATE TABLE invoices (
     CONSTRAINT invoices_amt_check CHECK ((amt > (0)::double precision))
 );
 
+CREATE TABLE industries(
+      id serial PRIMARY KEY,
+      code text NOT NULL UNIQUE,
+      field text NOT NULL UNIQUE
+);
+
+CREATE TABLE companies_industries (
+    comp_code text NOT NULL REFERENCES companies ON DELETE CASCADE,
+    industry_id INTEGER NOT NULL REFERENCES industries ON DELETE CASCADE,
+    PRIMARY KEY (comp_code, industry_id)
+);
+
 INSERT INTO companies
   VALUES ('apple', 'Apple Computer', 'Maker of OSX.'),
          ('ibm', 'IBM', 'Big blue.');
 
-INSERT INTO invoices (comp_Code, amt, paid, paid_date)
+INSERT INTO invoices (comp_code, amt, paid, paid_date)
   VALUES ('apple', 100, false, null),
          ('apple', 200, false, null),
          ('apple', 300, true, '2018-01-01'),
          ('ibm', 400, false, null);
+
+INSERT INTO industries (code, field)
+  VALUES ('tech', 'Technology'),
+  ('pred', 'Predatory Overpricing'),
+  ('sw', 'Software Development'),
+  ('farm', 'Aggriculture');
+  
+INSERT INTO companies_industries (comp_code, industry_id)
+  VALUES ('apple',1),
+  ('apple',2),
+  ('apple',3),
+  ('ibm',1);
+  

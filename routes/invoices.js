@@ -45,14 +45,32 @@ router.post("/", async function (req, res, next) {
 
 router.put("/:id", async function (req, res, next) {
     try {
-        const results = await db.query(
-            `UPDATE invoices SET amt=$2, paid_date=CURRENT_DATE
-             WHERE id=$1
-             RETURNING id, comp_code, amt, paid, add_date, paid_date`,
-             [req.params.id, req.body.amt]
+        if (req.body.paid){
+            const results = await db.query(
+                `UPDATE invoices SET amt=$2, paid=$3, paid_date=CURRENT_DATE
+                 WHERE id=$1
+                 RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+                 [req.params.id, req.body.amt, req.body.paid]
+            )
+            
+        }
+        else if (req.body.paid === false){
+            const results = await db.query(
+                `UPDATE invoices SET amt=$2, paid=$3, paid_date=null
+                WHERE id=$1
+                RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+                [req.params.id, req.body.amt, req.body.paid]
         )
-        
-        return res.status(202).json({invoice: results.rows[0]})
+        }
+        else {
+            const results = await db.query(
+                `UPDATE invoices SET amt=$2
+                WHERE id=$1
+                RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+                [req.params.id, req.body.amt]
+            )
+            return res.status(202).json({invoice: results.rows[0]})
+        }
     } catch(err) {
         return next(err)
     }
