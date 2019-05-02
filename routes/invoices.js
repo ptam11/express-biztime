@@ -1,5 +1,6 @@
 const db = require("../db");
 const express = require("express");
+const ExpressError = require("../expressError");
 const router = new express.Router()
 
 
@@ -64,7 +65,10 @@ router.delete("/:id", async function (req, res, next) {
              WHERE id=$1`,
              [req.params.id]
         )
-        
+        if (results.rowCount === 0){
+            throw new ExpressError("Invoice not found", 404)
+        }
+            
         return res.status(202).json({status: "deleted"})
     } catch(err) {
         return next(err)
